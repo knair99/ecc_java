@@ -1,20 +1,41 @@
 package com.elliptic.curve.crypt;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 
 public class Main {
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws NoSuchAlgorithmException, UnsupportedEncodingException{
 		
+		//First, create our elliptic object
+		//TODO: Assign private key here
 		Elliptic e = new Elliptic();
 		
-		BigInteger[] public_key = e.elliptic_multiply(e.Gx, e.Gy, e.private_key);
+		//Generate public key
+		e.generate_public_key();
 		
-		//BigInteger[] result = e.elliptic_add(new BigInteger("13"), new BigInteger("233"),new BigInteger("14"),new BigInteger("400"));
+		//Display all information generated so far
+		e.display_data();
 		
-		//BigInteger result = e.modular_inverse(new BigInteger("17"), new BigInteger("43"));
+		//Generate hash of message to sign
+		BigInteger hash = e.get_hash_from_message("The quick brown fox jumped over the lazy dog");
+		System.out.println("Hash: \n" + hash);
 		
-		System.out.println(public_key[0] + ", \n" +  public_key[1]);
+		//Digitally sign the message using ECC
+		BigInteger[] signature = e.sign_message(hash);
+		System.out.println("Signature: \n" + signature[0] + ",\n" + signature[1] );
+		
+		//Verify the signature at our end to make sure
+		if(e.verify_signature(signature, hash)){
+			System.out.println("Signature verification tested: PASSED!");
+		}
+		else{
+			System.out.println("Signature verification tested: FAILED!");
+		}
+		
+		
 	}
 
 }
+
