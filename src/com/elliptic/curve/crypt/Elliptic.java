@@ -456,6 +456,7 @@ public class Elliptic {
         return null;
     }
 
+  //Basic decrypt
     public static String decrypt(String encrypted, String initVector, String key) {
         try {
             IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
