@@ -379,6 +379,102 @@ public class Elliptic {
 	}
 	
 	
+	//ECCDHE
+	//The diffie hellman key exchange algorithm
+	//If A multiplies its private key with the public key of B
+	//a shared key is generated.
+	//If B multiplies its private key with the public key of A
+	//the same shared key is generated!
+	//if pkA is private keys of A and B respectively,
+	//and if PA and PB are the public keys of A and B respectively
+	//Shared key = pkA * PB 
+	//Here's how we know this works:
+	//PB = GP * pkB
+	//PA = GP * pkA
+	//Therefore S = pkA * PB = pkA * (pkB * GP) = pkB * (pkA *GP) = pkB = PA = S!!
+	//Now we have a key to do symmetric encryption with, generated on both sides
+	public BigInteger[] generate_diffie_hellman_key (BigInteger[] public_key_third_party){
+		
+		BigInteger[] shared_key = elliptic_multiply(public_key_third_party[0],
+													public_key_third_party[1],
+													private_key);
+		
+		
+		return shared_key;
+	}
+	
+	//Symmetric encryption after generating shared key
+	
+	//Encryption using AES library
+	public static byte[] encrypt1(String plainText, String encryptionKey) throws Exception {
+		String IV = "AAAAAAAAAAAAAAAA";
+		
+	    Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
+	    
+	    SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+	    
+	    cipher.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
+	    
+	    return cipher.doFinal(plainText.getBytes("UTF-8"));
+	  }
+	
+	public static String decrypt1(byte[] cipherText, String encryptionKey) throws Exception{
+		String IV = "AAAAAAAAAAAAAAAA";
+				
+		//String cipherString = new String(cipherText, "UTF-8");
+		
+		System.out.println("Cipher = " + cipherText + " length =" + cipherText.length);
+		
+	    Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
+	    
+	    SecretKeySpec key = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+	    
+	    cipher.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
+	    
+	    return new String(cipher.doFinal(cipherText),"UTF-8");
+	    
+	  }
+	
+	
+	public static String encrypt(String value, String initVector, String key) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            System.out.println("encrypted string: "
+                    + Base64.encodeBase64String(encrypted));
+
+            return Base64.encodeBase64String(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static String decrypt(String encrypted, String initVector, String key) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+	
 }
 
 
